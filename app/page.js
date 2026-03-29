@@ -350,14 +350,3 @@ export default function Home() {
     </div>
   );
 }
-```
-
-Press **Command + S**, then push:
-```
-git add .
-```
-```
-git commit -m "chunk playback final"
-```
-```
-git push origin main

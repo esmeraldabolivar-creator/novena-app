@@ -306,7 +306,9 @@ export default function Home() {
         await playFixed("FA");
       }catch(e){console.error(e);}
       speaking=false;paused=false;updateSpeakUI();
-    }    async function speakOne(text,cacheKey){
+    }
+
+    async function speakOne(text,cacheKey){
       speaking=true;paused=false;updateSpeakUI();
       try{
         var res=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.slice(0,2000),language:lang,cacheKey:cacheKey})});

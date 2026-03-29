@@ -55,14 +55,3 @@ export async function POST(request) {
     });
   }
 }
-```
-
-Press **Command + S**, then push:
-```
-git add .
-```
-```
-git commit -m "fix hail mary announcement and length"
-```
-```
-git push origin main

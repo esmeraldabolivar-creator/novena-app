@@ -131,7 +131,14 @@ export default function Home() {
 
     function L(){return lang==='en'?EN:ES;}
 
-   function getMysteryText(rosKey,idx){
+
+    function getOpeningText(dow,n){
+      var l=L(),dp=l.days[dow];
+      var t=l.opening+". "+l.sign+" "+dp.open(n)+" "+l.scripture+". "+dp.scr;
+      if(dp.med)t+=" "+l.meditation+". "+dp.med(n);
+      t+=" "+l.actTitle+". "+l.AC+" "+l.intercessions+". "+l.lordHear+" "+dp.inter(n);
+      return t;
+    }   function getMysteryText(rosKey,idx){
   var l=L(),m=l[rosKey];
   var title=m.list[idx][0],desc=m.list[idx][1];
   var ord=l.ordinals[idx],rosWord=lang==='en'?m.name.split(' ')[0]:m.name.split(' ')[1]||m.name.split(' ')[0];

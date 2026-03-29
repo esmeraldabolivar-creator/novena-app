@@ -297,7 +297,9 @@ export default function Home() {
         var cacheKey="mystery-intro-"+rosKey+"-"+idx;
         await speakOne(introText,cacheKey);
         if(!speaking)return;
-        await playFixed("HM10");
+        await playFixed("HM5");
+        if(!speaking)return;
+        await playFixed("HM5");
         if(!speaking)return;
         await playFixed("GB");
         if(!speaking)return;

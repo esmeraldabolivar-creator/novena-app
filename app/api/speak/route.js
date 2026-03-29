@@ -5,7 +5,7 @@ const CONTAINER = 'novena-audio';
 async function getContainer() {
   const client = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
   const container = client.getContainerClient(CONTAINER);
-  await container.createIfNotExists({ access: 'blob' });
+  await container.createIfNotExists();
   return container;
 }
 
@@ -54,14 +54,23 @@ async function generateAudio(text, language) {
 }
 
 export async function POST(request) {
-  const { text, language, cacheKey } = await request.json();
-  const cleaned = text.trim().slice(0, 2000);
-  const key = cacheKey ? `${cacheKey}-${language}.mp3` : null;
+  const { text, language, cacheKey, fixedKey } = await request.json();
+
   try {
+    // If a fixedKey is provided, serve the pre-recorded file directly
+    if (fixedKey) {
+      const audio = await getCachedAudio(`fixed-${fixedKey}-${language}.mp3`);
+      if (audio) return new Response(audio, { headers: { 'Content-Type': 'audio/mpeg' } });
+    }
+
+    const cleaned = text.trim().slice(0, 2000);
+    const key = cacheKey ? `${cacheKey}-${language}.mp3` : null;
+
     if (key) {
       const cached = await getCachedAudio(key);
       if (cached) return new Response(cached, { headers: { 'Content-Type': 'audio/mpeg' } });
     }
+
     const audio = await generateAudio(cleaned, language);
     if (key) await saveAudio(key, audio);
     return new Response(audio, { headers: { 'Content-Type': 'audio/mpeg' } });

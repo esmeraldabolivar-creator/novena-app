@@ -48,14 +48,3 @@ export async function POST(request) {
     });
   }
 }
-```
-
-Press **Command + S** to save, then run the three git commands again:
-```
-git add .
-```
-```
-git commit -m "fix azure tts"
-```
-```
-git push https://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@github.com/esmeraldabolivar-creator/novena-app.git main

@@ -3,8 +3,10 @@ export async function POST(request) {
   
   const voice = language === 'es' ? 'es-MX-DaliaNeural' : 'en-US-JennyNeural';
   const lang = language === 'es' ? 'es-MX' : 'en-US';
+
+  const truncated = text.slice(0, 3000);
   
-  const ssml = `<speak version='1.0' xml:lang='${lang}'><voice name='${voice}'><prosody rate='0.85'>${text}</prosody></voice></speak>`;
+  const ssml = `<speak version='1.0' xml:lang='${lang}'><voice name='${voice}'><prosody rate='0.85'>${truncated}</prosody></voice></speak>`;
 
   try {
     const tokenResponse = await fetch(

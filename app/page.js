@@ -325,7 +325,7 @@ export default function Home() {
       if(speaking){stopSpeak();return;}
       var d=addDays(novenaStart,currentDay),fin=currentDay===8,dow=d.getDay();
       var text=fin?getConclusionText(userName):getOpeningText(dow,userName)+' '+getMysteryText(currentRosKey,0);
-      var cacheKey=fin?null:'opening-day'+dow+'-mystery0-'+currentRosKey;
+      var cacheKey=null;
       await speakOne(text,cacheKey);
     }
 

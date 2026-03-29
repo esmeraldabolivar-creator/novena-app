@@ -171,11 +171,6 @@ export default function Home() {
   +'</div>':'')
 ```
 
-Press **Command + S** then push:
-```
-git add .
-git commit -m "titles in audio and mystery pause stop buttons"
-git push origin main
         +'</div>';
     }
 

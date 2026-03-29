@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 export default function Home() {
   useEffect(() => {
-    var lang='en',currentDay=0,novenaStart=null,userName='',speaking=false,paused=false,utter=null,allVoices=[],paulina=null;
+    var lang='en',currentDay=0,novenaStart=null,userName='',speaking=false,paused=false,audioElement=null;
     var nameInput=document.getElementById('nameInput');
     nameInput.addEventListener('input',function(){updateHeader(this.value.trim());});
 
@@ -32,14 +32,6 @@ export default function Home() {
 
     document.getElementById('todayDisplay').textContent=fmtDate(new Date());
 
-    function loadPaulina(){
-      allVoices=speechSynthesis.getVoices();
-      paulina=allVoices.find(function(v){return v.name==='Paulina';})||allVoices.find(function(v){return v.name.toLowerCase().includes('paulina');})||null;
-      document.getElementById('voice-indicator').textContent=paulina?'Voice: Paulina':'Voice: Paulina (install via System Settings → Accessibility → Spoken Content)';
-    }
-    speechSynthesis.onvoiceschanged=loadPaulina;
-    loadPaulina();
-
     function beginNovena(){
       var n=nameInput.value.trim();
       if(!n){document.getElementById('errMsg').style.display='block';return;}
@@ -47,7 +39,7 @@ export default function Home() {
       userName=n;novenaStart=new Date();novenaStart.setHours(0,0,0,0);currentDay=0;
       document.getElementById('form-section').style.display='none';
       document.getElementById('novena-section').style.display='block';
-      loadPaulina();buildCal();showDay(0);
+      buildCal();showDay(0);
     }
 
     var EN={sign:'In the name of the Father, and of the Son, and of the Holy Spirit. Amen.',OF:'Our Father, who art in heaven, hallowed be Thy name; Thy kingdom come; Thy will be done on earth as it is in heaven. Give us this day our daily bread; and forgive us our trespasses, as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.',HM:'Hail Mary, full of grace, the Lord is with thee; blessed art thou among women, and blessed is the fruit of thy womb, Jesus. Holy Mary, Mother of God, pray for us sinners, now and at the hour of our death. Amen.',GB:'Glory be to the Father, and to the Son, and to the Holy Spirit, as it was in the beginning, is now, and ever shall be, world without end. Amen.',FA:'O my Jesus, forgive us our sins, save us from the fires of hell, lead all souls to heaven, especially those in most need of Thy mercy. Amen.',AC:'O my God, I am heartily sorry for having offended You, and I detest all my sins because of Your just punishments, but most of all because they offend You, my God, who are all-good and deserving of all my love. I firmly resolve, with the help of Your grace, to sin no more and to avoid the near occasions of sin. Amen.',OFlbl:'Our Father',HMlbl:'[Hail Mary — repeated 10 times]',GBlbl:'Glory Be',FAlbl:'Fatima Prayer',opening:'Opening Prayer',actTitle:'Act of Contrition',scripture:'Scripture Reading',meditation:'Meditation',intercessions:'Intercessions',lordHear:'Lord, in Your mercy, hear our prayer.',rosaryLbl:'The Rosary',requiem:'Eternal Rest Prayer — Requiem Aeternam',deProf:'De Profundis — Psalm 130',deProfIntro:'A prayer from the depths, offered for the soul of',finalComm:'Final Commendation',closingBless:'Closing Blessing',finalBanner:'Final Day — Conclusion of the Novenario',conclusionOf:'Conclusion of the Novenario for',novenFor:'Novena for',ordinals:['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth'],daysFull:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],daysShort:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],dayLbl:'Day',ofLbl:'of',finalLbl:'Final',readAloud:'Read aloud',pause:'Pause',resume:'Resume',stop:'Stop',psalm:['Out of the depths I cry to You, O Lord;','Lord, hear my voice!','Let Your ears be attentive to my voice in supplication.','If You, O Lord, mark iniquities, Lord, who can stand?','But with You is forgiveness, that You may be revered.','I trust in the Lord; my soul trusts in His word.','My soul waits for the Lord more than sentinels wait for the dawn.','More than sentinels wait for the dawn, let Israel wait for the Lord,','For with the Lord is kindness and with Him is plentiful redemption;','And He will redeem Israel from all their iniquities.'],requiemFull:function(n){return 'Eternal rest grant unto '+n+', O Lord, and let perpetual light shine upon them. May their soul and the souls of all the faithful departed, through the mercy of God, rest in peace. Amen.';},requiemShort:function(n){return 'Eternal rest grant unto '+n+', O Lord, and let perpetual light shine upon them.';},commendation:function(n){return ['Into Your hands, O merciful Savior, we commend the soul of '+n+'. Acknowledge, we humbly beseech You, a sheep of Your own fold, a lamb of Your own flock, a sinner of Your own redeeming. Receive them into the arms of Your mercy, into the blessed rest of everlasting peace, and into the glorious company of Your saints in light.','We ask this through the intercession of the Blessed Virgin Mary, Mother of God, of Saint Joseph, patron of a happy death, and of all the angels and saints who watch over the faithful departed.'];},blessing:['May the Lord bless you and keep you. May His face shine upon you and be gracious to you. May He turn His countenance toward you and grant you peace. Amen.','May the souls of the faithful departed, through the mercy of God, rest in peace. Amen.','In the name of the Father, and of the Son, and of the Holy Spirit. Amen.'],conclusionOpen:function(n){return 'Almighty and merciful God, we have gathered for nine days to lift up the soul of '+n+' before Your throne of grace. As this novenario draws to its close, we commend '+n+' entirely into Your loving hands, trusting in Your boundless mercy and the promise of the Resurrection.';},conclusionInter:function(n){return ['For the soul of '+n+', that they may behold Your face in glory…','For all who prayed this novena, that they may be strengthened in faith and hope…',"For all the faithful departed, especially those most in need of God's mercy…","For the grieving, that God's peace which surpasses all understanding guard their hearts…","For the grace to live well, so that we may die in God's friendship…"];},complete:function(n){return 'This novenario for '+n+' is now complete.';},grace:'May God receive your prayers with mercy and love.',sorrowful:{name:'Sorrowful Mysteries',list:[['The Agony in the Garden','Jesus goes to the Garden of Gethsemane to pray. He is filled with sorrow and anguish, yet He accepts the will of the Father.'],['The Scourging at the Pillar','Jesus is bound to a pillar and cruelly scourged for our sins.'],['The Crowning with Thorns','Jesus is mocked and crowned with thorns by the soldiers, bearing our shame with patience.'],['The Carrying of the Cross','Jesus carries His heavy cross to Calvary, falling three times along the way.'],['The Crucifixion and Death','Jesus is nailed to the cross and dies for the salvation of the world.']]},joyful:{name:'Joyful Mysteries',list:[['The Annunciation','The Angel Gabriel announces to Mary that she will conceive and bear the Son of God.'],['The Visitation','Mary visits her cousin Elizabeth, who is filled with the Holy Spirit at her greeting.'],['The Nativity','Jesus is born in Bethlehem, laid in a manger, and adored by shepherds and angels.'],['The Presentation in the Temple','Mary and Joseph present the Child Jesus in the Temple according to the Law of Moses.'],['The Finding in the Temple','After three days of searching, Mary and Joseph find Jesus in the Temple, sitting among the teachers.']]},glorious:{name:'Glorious Mysteries',list:[['The Resurrection','Jesus rises from the dead on the third day, triumphant over sin and death.'],['The Ascension','Jesus ascends into heaven forty days after His Resurrection, in the presence of His disciples.'],['The Descent of the Holy Spirit','The Holy Spirit descends upon Mary and the Apostles at Pentecost with tongues of fire.'],['The Assumption of Mary','At the end of her earthly life, Mary is assumed body and soul into heavenly glory.'],['The Coronation of Mary','Mary is crowned Queen of Heaven and Earth by her Divine Son.']]},luminous:{name:'Luminous Mysteries',list:[['The Baptism in the Jordan','Jesus is baptized by John and the Holy Spirit descends upon Him as a dove, the Father proclaiming His beloved Son.'],['The Wedding at Cana',"At Mary's intercession, Jesus works His first miracle, changing water into wine."],['The Proclamation of the Kingdom','Jesus preaches repentance, forgives sins, and calls all to conversion of heart.'],['The Transfiguration','Jesus is transfigured before Peter, James, and John on Mount Tabor, revealing His divine glory.'],['The Institution of the Eucharist','At the Last Supper, Jesus gives us His Body and Blood and institutes the Holy Eucharist.']]},days:{0:{open:function(n){return 'Risen Lord Jesus, on this Sunday — the day of Your glorious Resurrection — we lift up to You the soul of '+n+'. You conquered death so that we might live. May '+n+' share in the fullness of that victory and rise with You to eternal glory.';},scr:'"Do not be amazed! You seek Jesus of Nazareth, the crucified. He has been raised; he is not here." — Mark 16:6',inter:function(n){return ['For the soul of '+n+', that they may share in the joy of the Resurrection…','For all the faithful departed who await the fullness of eternal life…','For all who grieve, that Easter hope may console them…','For the Church, that she may always proclaim the Resurrection with faith…'];},ros:'glorious'},1:{open:function(n){return 'Heavenly Father, through the intercession of the Blessed Virgin Mary, we humbly offer this Monday prayer for the soul of '+n+'. As Mary said yes to Your will, may '+n+' be welcomed into the joy You have prepared for those who trust in You.';},scr:'"Blessed are they who mourn, for they will be comforted." — Matthew 5:4',inter:function(n){return ['For the soul of '+n+', through the intercession of Our Lady…',"For all who have died without the sacraments, that God's mercy may reach them…",'For families separated by death, that hope may sustain them…','For a greater love for Our Lady and trust in her intercession…'];},ros:'joyful'},2:{open:function(n){return 'Lord Jesus Christ, King of mercy, we come before You this Tuesday to pray for the soul of '+n+'. You suffered Your Passion for love of us. Through Your wounds, grant healing and mercy to those who have departed this life.';},scr:'"For God so loved the world that he gave his only Son, so that everyone who believes in him might not perish but might have eternal life." — John 3:16',inter:function(n){return ['For the soul of '+n+', that they may receive Your full mercy…','For all souls who suffered greatly in this life…','For those who mourn, that they may find solace in Your love…','For deeper faith in the resurrection and life everlasting…'];},ros:'sorrowful'},3:{open:function(n){return 'Glorious Lord Jesus, You ascended into heaven to prepare a place for us. We pray this Wednesday for the soul of '+n+', that You receive them into those eternal mansions You promised to all who love You.';},scr:'"In my Father\'s house there are many dwelling places. If there were not, would I have told you that I am going to prepare a place for you?" — John 14:2',inter:function(n){return ['For the soul of '+n+', that they may dwell in Your house forever…','For all souls longing to be purified and united with God…','For our families, that we may one day be reunited in heaven…',"For peace and trust in God's eternal plan of love…"];},ros:'glorious'},4:{open:function(n){return 'Lord Jesus, present in the Most Holy Eucharist, on this Thursday we unite our prayers to Your eternal sacrifice for the soul of '+n+'. You gave Yourself completely out of love — may that same love bring '+n+' into the fullness of eternal life.';},scr:'"Whoever eats my flesh and drinks my blood has eternal life, and I will raise him on the last day." — John 6:54',inter:function(n){return ['For the soul of '+n+', united to the Eucharistic sacrifice…','For all priests who offer Mass for the dead…','For those who cannot attend Mass, that they may be spiritually nourished…','For a deeper love of the Eucharist and its power to sanctify…'];},ros:'luminous'},5:{open:function(n){return 'Merciful Lord Jesus, You wept over the death of Your friend Lazarus. Look with love upon the soul of '+n+' whom You have called from this life. Grant them rest from their labors and welcome them into Your eternal home.';},scr:'"I am the resurrection and the life; whoever believes in me, even if he dies, will live, and everyone who lives and believes in me will never die." — John 11:25–26',med:function(n){return ['On this day, we remember the suffering and death of Jesus on the Cross. Through His Passion, He redeemed the world and opened the gates of heaven.','Let us reflect on His sacrifice and trust that through His mercy, the soul of '+n+' may be purified and brought into eternal glory.'];},inter:function(n){return ['For the soul of '+n+', that they may be forgiven of all sins…','For all souls in purgatory, especially those most forgotten…','For grieving family and friends, that they may find comfort…',"For greater trust in God's mercy and promise of eternal life…"];},ros:'sorrowful'},6:{open:function(n){return 'Most Holy Virgin Mary, on this Saturday dedicated to your honor, we bring before you the soul of '+n+'. You are the comfort of the afflicted and the refuge of sinners. Present '+n+' to your Son Jesus with your maternal love and plead for their entry into eternal joy.';},scr:'"Can a mother forget her infant, be without tenderness for the child of her womb? Even should she forget, I will never forget you." — Isaiah 49:15',inter:function(n){return ['For the soul of '+n+', through the loving intercession of Our Lady…','For all who died on this day, that Mary welcome them…',"For those in grief, that Mary's comfort reach their hearts…",'For devotion to Our Lady and trust in her motherly care…'];},ros:'joyful'}}};
@@ -67,12 +59,61 @@ export default function Home() {
     function showDay(idx){stopSpeak();currentDay=idx;for(var i=0;i<9;i++){var el=document.getElementById('calDay'+i);if(el)el.style.background=i===idx?'#fff':'#f9f9f9';}var d=addDays(novenaStart,idx),fin=idx===8,l=L(),dow=d.getDay();document.getElementById('final-banner').style.display=fin?'block':'none';document.getElementById('final-banner').textContent=l.finalBanner;document.getElementById('dayLabel').textContent=l.dayLbl+' '+(idx+1)+' '+l.ofLbl+' 9 — '+l.ordinals[idx];document.getElementById('dayDate').textContent=fmtDate(d);document.getElementById('prevTop').disabled=idx===0;document.getElementById('prevBot').disabled=idx===0;document.getElementById('nextTop').disabled=idx===8;document.getElementById('nextBot').disabled=idx===8;document.getElementById('speakTop').textContent=l.readAloud;document.getElementById('speakBot').textContent=l.readAloud;if(fin){document.getElementById('dayHeading').textContent=l.conclusionOf+' '+userName;document.getElementById('prayerBody').innerHTML=buildConclusion(userName);}else{document.getElementById('dayHeading').textContent=l.novenFor+' '+userName+' — '+l.daysFull[dow];document.getElementById('prayerBody').innerHTML=buildDay(dow,userName);}}
     function changeDay(dir){var n=currentDay+dir;if(n<0||n>8)return;goTo(n);}
     function goTo(idx){stopSpeak();showDay(idx);}
-    function getSpeakText(){var c=document.getElementById('prayerBody').cloneNode(true);c.querySelectorAll('.hail-spoken').forEach(function(el){var s=document.createElement('span');s.textContent=el.textContent;el.replaceWith(s);});c.querySelectorAll('[style*="display:none"]').forEach(function(el){el.remove();});return c.innerText||c.textContent||'';}
+
     function getPlainText(){var c=document.getElementById('prayerBody').cloneNode(true);c.querySelectorAll('.hail-spoken').forEach(function(el){el.remove();});return c.innerText||c.textContent||'';}
-    function updateSpeakUI(){var l=L();['Top','Bot'].forEach(function(s){document.getElementById('speak'+s).style.display=speaking?'none':'inline-block';document.getElementById('pause'+s).style.display=speaking?'inline-block':'none';document.getElementById('pause'+s).textContent=paused?l.resume:l.pause;document.getElementById('stop'+s).style.display=speaking?'inline-block':'none';document.getElementById('stop'+s).textContent=l.stop;});}
-    function toggleSpeak(){if(speaking){stopSpeak();return;}var text=getSpeakText();if(!text)return;utter=new SpeechSynthesisUtterance(text);utter.voice=paulina||null;utter.rate=0.78;utter.pitch=1;utter.lang=lang==='es'?'es-ES':'en-US';utter.onend=function(){speaking=false;paused=false;updateSpeakUI();};utter.onerror=function(){speaking=false;paused=false;updateSpeakUI();};speechSynthesis.speak(utter);speaking=true;paused=false;updateSpeakUI();}
-    function togglePause(){if(!speaking)return;if(paused){speechSynthesis.resume();paused=false;}else{speechSynthesis.pause();paused=true;}updateSpeakUI();}
-    function stopSpeak(){if(speechSynthesis.speaking||speechSynthesis.paused)speechSynthesis.cancel();speaking=false;paused=false;updateSpeakUI();}
+    function getSpeakText(){var c=document.getElementById('prayerBody').cloneNode(true);c.querySelectorAll('.hail-spoken').forEach(function(el){var s=document.createElement('span');s.textContent=el.textContent;el.replaceWith(s);});c.querySelectorAll('[style*="display:none"]').forEach(function(el){el.remove();});return c.innerText||c.textContent||'';}
+
+    async function toggleSpeak(){
+      if(speaking){stopSpeak();return;}
+      var text=getSpeakText();if(!text)return;
+      var l=L();
+      document.getElementById('speakTop').style.display='none';
+      document.getElementById('speakBot').style.display='none';
+      document.getElementById('pauseTop').style.display='none';
+      document.getElementById('pauseBot').style.display='none';
+      document.getElementById('stopTop').style.display='inline-block';
+      document.getElementById('stopBot').style.display='inline-block';
+      document.getElementById('speakTop').textContent=l.readAloud;
+      try {
+        var response=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,language:lang})});
+        if(!response.ok){throw new Error('Azure TTS failed');}
+        var audioBlob=await response.blob();
+        var audioUrl=URL.createObjectURL(audioBlob);
+        audioElement=new Audio(audioUrl);
+        speaking=true;
+        audioElement.onended=function(){speaking=false;updateSpeakUI();};
+        audioElement.onerror=function(){speaking=false;updateSpeakUI();};
+        audioElement.play();
+        updateSpeakUI();
+      } catch(e){
+        console.error('TTS error:',e);
+        speaking=false;updateSpeakUI();
+      }
+    }
+
+    function togglePause(){
+      if(!audioElement)return;
+      if(paused){audioElement.play();paused=false;}
+      else{audioElement.pause();paused=true;}
+      updateSpeakUI();
+    }
+
+    function stopSpeak(){
+      if(audioElement){audioElement.pause();audioElement.currentTime=0;}
+      speaking=false;paused=false;updateSpeakUI();
+    }
+
+    function updateSpeakUI(){
+      var l=L();
+      ['Top','Bot'].forEach(function(s){
+        document.getElementById('speak'+s).style.display=speaking?'none':'inline-block';
+        document.getElementById('pause'+s).style.display=speaking?'inline-block':'none';
+        document.getElementById('pause'+s).textContent=paused?l.resume:l.pause;
+        document.getElementById('stop'+s).style.display=speaking?'inline-block':'none';
+        document.getElementById('stop'+s).textContent=l.stop;
+      });
+    }
+
     function copyPrayer(){navigator.clipboard.writeText(getPlainText()).then(function(){['Top','Bot'].forEach(function(s){document.getElementById('copy'+s).textContent='Copied!';});setTimeout(function(){['Top','Bot'].forEach(function(s){document.getElementById('copy'+s).textContent='Copy';});},2000);});}
 
     document.getElementById('btnEn').addEventListener('click',function(){setLang('en');});
@@ -100,9 +141,7 @@ export default function Home() {
         <h1 id="mainTitle" style={{fontFamily:'Georgia,serif',fontSize:'1.9rem',fontWeight:500,lineHeight:1.2}}>Novena for the Dead</h1>
         <p id="sub" style={{fontSize:'.9rem',color:'#666',fontStyle:'italic',marginTop:'.3rem'}}>Nine days of prayer</p>
       </div>
-
       <hr style={{border:'none',borderTop:'1px solid #ddd',margin:'1.5rem 0'}} />
-
       <div id="form-section">
         <p style={{fontSize:'11px',letterSpacing:'.05em',textTransform:'uppercase',color:'#666',marginBottom:'6px'}}>Language</p>
         <div style={{display:'flex',gap:'8px',marginBottom:'1.25rem'}}>
@@ -120,7 +159,6 @@ export default function Home() {
         <p id="errMsg" style={{color:'red',fontSize:'13px',marginBottom:'8px',display:'none'}}>Please enter a name first.</p>
         <button id="beginBtn" style={{width:'100%',padding:'13px',fontSize:'1.05rem',fontFamily:'Georgia,serif',border:'1px solid #aaa',borderRadius:'8px',background:'#fff',cursor:'pointer'}}>Begin the Novena ✝</button>
       </div>
-
       <div id="novena-section" style={{display:'none'}}>
         <div id="cal-grid" style={{display:'grid',gridTemplateColumns:'repeat(9,1fr)',gap:'4px',marginBottom:'1.25rem'}}></div>
         <div style={{border:'1px solid #ddd',borderRadius:'12px',overflow:'hidden'}}>
@@ -131,7 +169,7 @@ export default function Home() {
             <p id="dayDate" style={{fontSize:'13px',color:'#666'}}></p>
           </div>
           <div style={{padding:'.6rem 1.25rem',borderBottom:'1px solid #ddd',background:'#f9f9f9',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
-            <span id="voice-indicator" style={{fontSize:'12px',color:'#666'}}>Voice: Paulina</span>
+            <span style={{fontSize:'12px',color:'#666'}}>Voice: Jenny (EN) · Dalia (ES)</span>
             <div style={{flex:1}}></div>
             <button id="speakTop" style={{padding:'6px 14px',border:'1px solid #ccc',borderRadius:'6px',background:'#fff',cursor:'pointer',fontFamily:'Georgia,serif',fontSize:'13px'}}>Read aloud</button>
             <button id="pauseTop" style={{padding:'6px 14px',border:'1px solid #ccc',borderRadius:'6px',background:'#fff',cursor:'pointer',fontFamily:'Georgia,serif',fontSize:'13px',display:'none'}}>Pause</button>

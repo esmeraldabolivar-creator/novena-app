@@ -225,7 +225,7 @@ export default function Home() {
             stopSpeak();
             var el=document.getElementById('mystery-'+(idx+1));
             if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-            speakOne(getMysteryText(currentRosKey,idx+1),'mystery-'+currentRosKey+'-'+(idx+1)+'-'+lang);
+            speakMysteryInParts(currentRosKey,idx+1);
           });
         })(i);
       }
@@ -269,7 +269,42 @@ export default function Home() {
     function changeDay(dir){var n=currentDay+dir;if(n<0||n>8)return;goTo(n);}
     function goTo(idx){stopSpeak();showDay(idx);}
 
-    async function speakOne(text,cacheKey){
+
+    async function playFixed(fixedKey){
+      var res=await fetch("/api/speak",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fixedKey:fixedKey,language:lang,text:""})});
+      if(!res.ok)throw new Error("failed");
+      var blob=await res.blob();
+      var url=URL.createObjectURL(blob);
+      return new Promise(function(resolve,reject){
+        currentAudio=new Audio(url);
+        currentAudio.onended=resolve;
+        currentAudio.onerror=reject;
+        currentAudio.play();
+      });
+    }
+
+    async function getMysteryIntroText(rosKey,idx){
+      var l=L(),m=l[rosKey];
+      var title=m.list[idx][0],desc=m.list[idx][1];
+      var ord=l.ordinals[idx],rosWord=lang==="en"?m.name.split(" ")[0]:m.name.split(" ")[1]||m.name.split(" ")[0];
+      return ord+" "+rosWord+": "+title+". "+desc+" "+l.OFlbl+": "+l.OF;
+    }
+
+    async function speakMysteryInParts(rosKey,idx){
+      speaking=true;paused=false;updateSpeakUI();
+      try{
+        var introText=await getMysteryIntroText(rosKey,idx);
+        var cacheKey="mystery-intro-"+rosKey+"-"+idx;
+        await speakOne(introText,cacheKey);
+        if(!speaking)return;
+        await playFixed("HM10");
+        if(!speaking)return;
+        await playFixed("GB");
+        if(!speaking)return;
+        await playFixed("FA");
+      }catch(e){console.error(e);}
+      speaking=false;paused=false;updateSpeakUI();
+    }    async function speakOne(text,cacheKey){
       speaking=true;paused=false;updateSpeakUI();
       try{
         var res=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.slice(0,2000),language:lang,cacheKey:cacheKey})});

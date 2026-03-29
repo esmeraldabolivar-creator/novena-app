@@ -169,8 +169,6 @@ export default function Home() {
   +'<button id="mpause-'+idx+'" style="padding:7px 16px;border:1px solid rgba(128,128,128,0.5);border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-family:Georgia,serif;font-size:13px;display:none;">'+l.pause+'</button>'
   +'<button id="mstop-'+idx+'" style="padding:7px 16px;border:1px solid rgba(128,128,128,0.5);border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-family:Georgia,serif;font-size:13px;display:none;">'+l.stop+'</button>'
   +'</div>':'')
-```
-
         +'</div>';
     }
 

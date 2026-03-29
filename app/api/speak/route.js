@@ -25,7 +25,9 @@ async function saveAudio(key, buffer) {
   try {
     const container = await getContainer();
     const blob = container.getBlockBlobClient(key);
-    await blob.upload(buffer, buffer.length, { blobHTTPHeaders: { blobContentType: 'audio/mpeg' } });
+    await blob.upload(buffer, buffer.length, {
+      blobHTTPHeaders: { blobContentType: 'audio/mpeg' }
+    });
   } catch(e) { console.error('Cache save error:', e); }
 }
 
@@ -53,7 +55,7 @@ async function generateAudio(text, language) {
 
 export async function POST(request) {
   const { text, language, cacheKey } = await request.json();
-  const cleaned = text.trim().slice(0, 2500);
+  const cleaned = text.trim().slice(0, 2000);
   const key = cacheKey ? `${cacheKey}-${language}.mp3` : null;
   try {
     if (key) {
@@ -64,6 +66,8 @@ export async function POST(request) {
     if (key) await saveAudio(key, audio);
     return new Response(audio, { headers: { 'Content-Type': 'audio/mpeg' } });
   } catch(error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500, headers: { 'Content-Type': 'application/json' }
+    });
   }
 }

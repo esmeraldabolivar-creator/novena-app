@@ -314,8 +314,8 @@ export default function Home() {
         var blob=await res.blob();
         var url=URL.createObjectURL(blob);
         currentAudio=new Audio(url);
-        currentAudio.onended=function(){speaking=false;paused=false;updateSpeakUI();};
-        currentAudio.onerror=function(){speaking=false;paused=false;updateSpeakUI();};
+        currentAudio.onended=resolve;
+        currentAudio.onerror=reject;
         currentAudio.play();
       }catch(e){console.error(e);speaking=false;updateSpeakUI();}
     }

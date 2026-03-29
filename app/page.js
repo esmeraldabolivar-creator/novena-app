@@ -309,17 +309,16 @@ export default function Home() {
     }
 
     async function speakOne(text,cacheKey){
-      speaking=true;paused=false;updateSpeakUI();
-      try{
-        var res=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.slice(0,2000),language:lang,cacheKey:cacheKey})});
-        if(!res.ok)throw new Error('failed');
-        var blob=await res.blob();
-        var url=URL.createObjectURL(blob);
+      var res=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.slice(0,2000),language:lang,cacheKey:cacheKey})});
+      if(!res.ok)throw new Error('failed');
+      var blob=await res.blob();
+      var url=URL.createObjectURL(blob);
+      return new Promise(function(resolve,reject){
         currentAudio=new Audio(url);
         currentAudio.onended=resolve;
         currentAudio.onerror=reject;
         currentAudio.play();
-      }catch(e){console.error(e);speaking=false;updateSpeakUI();}
+      });
     }
 
     async function toggleSpeak(){

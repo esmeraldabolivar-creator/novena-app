@@ -131,13 +131,12 @@ export default function Home() {
 
     function L(){return lang==='en'?EN:ES;}
 
-    function getOpeningText(dow,n){
-      var l=L(),dp=l.days[dow];
-      var t=l.sign+' '+dp.open(n)+' '+dp.scr;
-      if(dp.med)t+=' '+dp.med(n);
-      t+=' '+l.AC+' '+dp.inter(n);
-      return t;
-    }
+   function getMysteryText(rosKey,idx){
+  var l=L(),m=l[rosKey];
+  var title=m.list[idx][0],desc=m.list[idx][1];
+  var ord=l.ordinals[idx],rosWord=lang==='en'?m.name.split(' ')[0]:m.name.split(' ')[1]||m.name.split(' ')[0];
+  return ord+' '+rosWord+': '+title+'. '+desc+' '+l.OFlbl+': '+l.OF+' '+l.HMlbl+': '+Array(10).fill(l.HM).join(' ')+' '+l.GBlbl+': '+l.GB+' '+l.FAlbl+': '+l.FA;
+}
 
     function getMysteryText(rosKey,idx){
       var l=L(),m=l[rosKey];
@@ -165,7 +164,18 @@ export default function Home() {
         +'<p style="margin-bottom:.6rem;line-height:1.8;">'+l.GB+'</p>'
         +'<p style="font-size:1rem;font-weight:500;margin:.6rem 0 .4rem;">'+l.FAlbl+'</p>'
         +'<p style="line-height:1.8;">'+l.FA+'</p>'
-        +(idx<4?'<button id="nxt-'+idx+'" style="margin-top:1rem;padding:7px 16px;border:1px solid rgba(128,128,128,0.5);border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-family:Georgia,serif;font-size:13px;">'+l.nextMystery+'</button>':'')
+        +(idx<4?'<div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">'
+  +'<button id="nxt-'+idx+'" style="padding:7px 16px;border:1px solid rgba(128,128,128,0.5);border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-family:Georgia,serif;font-size:13px;">'+l.nextMystery+'</button>'
+  +'<button id="mpause-'+idx+'" style="padding:7px 16px;border:1px solid rgba(128,128,128,0.5);border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-family:Georgia,serif;font-size:13px;display:none;">'+l.pause+'</button>'
+  +'<button id="mstop-'+idx+'" style="padding:7px 16px;border:1px solid rgba(128,128,128,0.5);border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-family:Georgia,serif;font-size:13px;display:none;">'+l.stop+'</button>'
+  +'</div>':'')
+```
+
+Press **Command + S** then push:
+```
+git add .
+git commit -m "titles in audio and mystery pause stop buttons"
+git push origin main
         +'</div>';
     }
 

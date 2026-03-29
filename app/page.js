@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 export default function Home() {
   useEffect(() => {
-    var lang='en',currentDay=0,novenaStart=null,userName='',speaking=false,paused=false,audioElement=null,currentMystery=0,inRosary=false;
+    var lang='en',currentDay=0,novenaStart=null,userName='',speaking=false,paused=false,audioQueue=[],audioIndex=0,currentAudio=null,currentRosKey='glorious',currentMystery=0,inRosary=false;
     var nameInput=document.getElementById('nameInput');
     nameInput.addEventListener('input',function(){updateHeader(this.value.trim());});
 
@@ -47,27 +47,55 @@ export default function Home() {
 
     function L(){return lang==='en'?EN:ES;}
 
-    function getMysteryText(rosKey,idx){
-      var l=L(),m=l[rosKey],ord=l.ordinals[idx];
-      var title=m.list[idx][0],desc=m.list[idx][1];
-      var rosWord=m.name.split(' ')[0];
-      return ord+' '+rosWord+' Mystery: '+title+'. '+desc+' '+l.OF+' '+l.HM+' '+l.GBlbl+'. '+l.GB+' '+l.FAlbl+'. '+l.FA;
+    // Split text into chunks of max 2500 chars at sentence boundaries
+    function splitIntoChunks(text, maxLen) {
+      var chunks = [];
+      while (text.length > 0) {
+        if (text.length <= maxLen) { chunks.push(text); break; }
+        var slice = text.slice(0, maxLen);
+        var cut = Math.max(slice.lastIndexOf('. '), slice.lastIndexOf('! '), slice.lastIndexOf('? '), slice.lastIndexOf('\n'));
+        if (cut < 100) cut = maxLen;
+        else cut = cut + 1;
+        chunks.push(text.slice(0, cut).trim());
+        text = text.slice(cut).trim();
+      }
+      return chunks;
     }
 
-    function getOpeningText(dow,n){
-      var l=L(),dp=l.days[dow];
-      var txt=l.sign+' '+dp.open(n)+' '+dp.scr;
-      if(dp.med)txt+=' '+dp.med(n).join(' ');
-      txt+=' '+l.AC+' '+l.lordHear+' '+dp.inter(n).join(' ');
-      return txt;
+    function getOpeningText(dow, n) {
+      var l=L(), dp=l.days[dow];
+      var parts = [l.sign, dp.open(n), dp.scr];
+      if (dp.med) dp.med(n).forEach(function(p){parts.push(p);});
+      parts.push(l.AC);
+      parts.push(l.lordHear);
+      dp.inter(n).forEach(function(i){parts.push(i);});
+      return parts.join(' ');
     }
 
-    function mBlock(rosKey,idx){
-      var l=L(),m=l[rosKey],ord=l.ordinals[idx];
-      var title=m.list[idx][0],desc=m.list[idx][1];
+    function getConclusionText(n) {
+      var l=L();
+      var parts = [l.sign, l.conclusionOpen(n), l.requiemFull(n)];
+      l.psalm.forEach(function(v){parts.push(v);});
+      parts.push(l.requiemShort(n));
+      l.commendation(n).forEach(function(p){parts.push(p);});
+      parts.push(l.lordHear);
+      l.conclusionInter(n).forEach(function(i){parts.push(i);});
+      l.blessing.forEach(function(p){parts.push(p);});
+      return parts.join(' ');
+    }
+
+    function getMysteryText(rosKey, idx) {
+      var l=L(), m=l[rosKey];
+      var title=m.list[idx][0], desc=m.list[idx][1];
+      var ord=l.ordinals[idx], rosWord=m.name.split(' ')[0];
+      return ord+' '+rosWord+' Mystery: '+title+'. '+desc+' '+l.OFlbl+': '+l.OF+' '+l.HMlbl+'. '+l.GBlbl+': '+l.GB+' '+l.FAlbl+': '+l.FA;
+    }
+
+    function mBlock(rosKey, idx) {
+      var l=L(), m=l[rosKey], ord=l.ordinals[idx];
+      var title=m.list[idx][0], desc=m.list[idx][1];
       var rosWord=m.name.split(' ')[0];
-      var isActive=inRosary&&currentMystery===idx;
-      return '<div id="mystery-'+idx+'" style="margin:1rem 0;padding:1rem 1.25rem;border:1px solid rgba(128,128,128,'+(isActive?'0.6':'0.2')+');border-radius:8px;'+(isActive?'outline:2px solid currentColor;':'')+'">'
+      return '<div id="mystery-'+idx+'" style="margin:1rem 0;padding:1rem 1.25rem;border:1px solid rgba(128,128,128,0.2);border-radius:8px;">'
         +'<p style="font-family:Georgia,serif;font-size:1.05rem;font-weight:500;margin-bottom:.4rem;">'+ord+' '+rosWord+' Mystery: '+title+'</p>'
         +'<p style="font-size:.95rem;opacity:0.7;font-style:italic;margin-bottom:.75rem;line-height:1.7;">'+desc+'</p>'
         +'<p style="font-size:1rem;font-weight:500;margin-bottom:.4rem;font-family:Georgia,serif;">'+l.OFlbl+'</p>'
@@ -81,10 +109,10 @@ export default function Home() {
         +'</div>';
     }
 
-    function rosaryHtml(rosKey){
-      var l=L(),m=l[rosKey],h='';
+    function rosaryHtml(rosKey) {
+      var l=L(), m=l[rosKey], h='';
       h+='<p style="font-family:Georgia,serif;font-size:1.1rem;font-weight:500;margin:1.5rem 0 .4rem;">'+l.rosaryLbl+' — '+m.name+'</p>';
-      for(var i=0;i<5;i++)h+=mBlock(rosKey,i);
+      for(var i=0;i<5;i++) h+=mBlock(rosKey,i);
       return h;
     }
 
@@ -93,10 +121,8 @@ export default function Home() {
     function sSc(t){return '<blockquote style="border-left:2px solid rgba(128,128,128,0.4);padding-left:1rem;margin:.5rem 0 .75rem;font-style:italic;font-size:1rem;line-height:1.8;opacity:0.85;">'+t+'</blockquote>';}
     function sLi(arr){return '<ul style="list-style:none;padding:0;margin:.5rem 0 .75rem;">'+arr.map(function(i){return '<li style="padding-left:1.2rem;position:relative;line-height:1.8;margin-bottom:.2rem;"><span style="position:absolute;left:0;font-size:.6rem;top:.5rem;opacity:0.5;">✦</span>'+i+'</li>';}).join('')+'</ul>';}
 
-    var currentRosKey='glorious';
-
-    function buildDay(dow,n){
-      var l=L(),dp=l.days[dow],h='';
+    function buildDay(dow, n) {
+      var l=L(), dp=l.days[dow], h='';
       currentRosKey=dp.ros;
       h+=sT(l.opening)+sP(l.sign)+sP(dp.open(n));
       h+=sT(l.scripture)+sSc(dp.scr);
@@ -107,8 +133,8 @@ export default function Home() {
       return h;
     }
 
-    function buildConclusion(n){
-      var l=L(),h='';
+    function buildConclusion(n) {
+      var l=L(), h='';
       h+=sT(l.opening)+sP(l.sign)+sP(l.conclusionOpen(n));
       h+=sT(l.requiem)+sP(l.requiemFull(n));
       h+=sT(l.deProf)+'<p style="font-style:italic;font-size:.9rem;opacity:0.6;margin-bottom:.5rem;">'+l.deProfIntro+' '+n+'.</p>';
@@ -121,30 +147,26 @@ export default function Home() {
       return h;
     }
 
-    function attachMysteryButtons(){
+    function attachMysteryButtons() {
       for(var i=0;i<4;i++){
         (function(idx){
           var btn=document.getElementById('next-mystery-'+idx);
-          if(btn)btn.addEventListener('click',function(){
+          if(btn) btn.addEventListener('click', function(){
             stopSpeak();
             currentMystery=idx+1;
             inRosary=true;
-            scrollToMystery(idx+1);
-            speakMystery(idx+1);
+            var el=document.getElementById('mystery-'+(idx+1));
+            if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+            speakChunks(splitIntoChunks(getMysteryText(currentRosKey, idx+1), 2500), 'mystery-'+currentRosKey+'-'+(idx+1));
           });
         })(i);
       }
     }
 
-    function scrollToMystery(idx){
-      var el=document.getElementById('mystery-'+idx);
-      if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-    }
-
-    function buildCal(){
-      var g=document.getElementById('cal-grid'),l=L();g.innerHTML='';
+    function buildCal() {
+      var g=document.getElementById('cal-grid'), l=L(); g.innerHTML='';
       for(var i=0;i<9;i++){
-        var d=addDays(novenaStart,i),fin=i===8;
+        var d=addDays(novenaStart,i), fin=i===8;
         var el=document.createElement('div');
         el.style.cssText='text-align:center;padding:7px 3px;border:1px solid rgba(128,128,128,0.3);border-radius:7px;cursor:pointer;'+(fin?'border-style:dashed;':'');
         el.innerHTML='<div style="font-size:10px;opacity:0.6;">'+l.daysShort[d.getDay()]+'</div><div style="font-size:13px;font-weight:500;">'+d.getDate()+'</div><div style="font-size:9px;opacity:0.6;">'+(fin?l.finalLbl:l.dayLbl+' '+(i+1))+'</div>';
@@ -154,16 +176,16 @@ export default function Home() {
       }
     }
 
-    function showDay(idx){
-      stopSpeak();currentDay=idx;currentMystery=0;inRosary=false;
+    function showDay(idx) {
+      stopSpeak(); currentDay=idx; currentMystery=0; inRosary=false;
       for(var i=0;i<9;i++){var el=document.getElementById('calDay'+i);if(el)el.style.outline=i===idx?'2px solid currentColor':'none';}
-      var d=addDays(novenaStart,idx),fin=idx===8,l=L(),dow=d.getDay();
+      var d=addDays(novenaStart,idx), fin=idx===8, l=L(), dow=d.getDay();
       document.getElementById('final-banner').style.display=fin?'block':'none';
       document.getElementById('final-banner').textContent=l.finalBanner;
       document.getElementById('dayLabel').textContent=l.dayLbl+' '+(idx+1)+' '+l.ofLbl+' 9 — '+l.ordinals[idx];
       document.getElementById('dayDate').textContent=fmtDate(d);
-      document.getElementById('prevTop').disabled=idx===0;document.getElementById('prevBot').disabled=idx===0;
-      document.getElementById('nextTop').disabled=idx===8;document.getElementById('nextBot').disabled=idx===8;
+      document.getElementById('prevTop').disabled=idx===0; document.getElementById('prevBot').disabled=idx===0;
+      document.getElementById('nextTop').disabled=idx===8; document.getElementById('nextBot').disabled=idx===8;
       document.getElementById('speakTop').textContent=l.readAloud;
       document.getElementById('speakBot').textContent=l.readAloud;
       if(fin){
@@ -179,57 +201,54 @@ export default function Home() {
     function changeDay(dir){var n=currentDay+dir;if(n<0||n>8)return;goTo(n);}
     function goTo(idx){stopSpeak();showDay(idx);}
 
-    function getOpeningSpeakText(){
-      var d=addDays(novenaStart,currentDay),fin=currentDay===8,dow=d.getDay();
-      if(fin){
-        var l=L();
-        return l.sign+' '+l.conclusionOpen(userName)+' '+l.requiemFull(userName)+' '+l.psalm.join(' ')+' '+l.requiemShort(userName)+' '+l.commendation(userName).join(' ')+' '+l.lordHear+' '+l.conclusionInter(userName).join(' ')+' '+l.blessing.join(' ');
+    // Play a queue of text chunks sequentially, with optional cache keys
+    async function speakChunks(chunks, baseCacheKey) {
+      speaking=true; paused=false; updateSpeakUI();
+      for(var i=0; i<chunks.length; i++){
+        if(!speaking) break;
+        var cacheKey = baseCacheKey ? baseCacheKey+'-chunk'+i : null;
+        try {
+          var response = await fetch('/api/speak', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({text: chunks[i], language: lang, cacheKey: cacheKey})
+          });
+          if(!response.ok) throw new Error('TTS failed');
+          var blob = await response.blob();
+          var url = URL.createObjectURL(blob);
+          await new Promise(function(resolve, reject){
+            currentAudio = new Audio(url);
+            currentAudio.onended = resolve;
+            currentAudio.onerror = reject;
+            currentAudio.play();
+          });
+        } catch(e) {
+          console.error('TTS chunk error:', e);
+          break;
+        }
       }
-      return getOpeningText(dow,userName);
+      speaking=false; paused=false; updateSpeakUI();
     }
 
-    async function speakText(text,cacheKey){
-      speaking=true;paused=false;updateSpeakUI();
-      try{
-        var response=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,language:lang,cacheKey:cacheKey})});
-        if(!response.ok)throw new Error('TTS failed');
-        var blob=await response.blob();
-        var url=URL.createObjectURL(blob);
-        audioElement=new Audio(url);
-        audioElement.onended=function(){speaking=false;paused=false;updateSpeakUI();};
-        audioElement.onerror=function(){speaking=false;paused=false;updateSpeakUI();};
-        audioElement.play();
-      }catch(e){
-        console.error(e);speaking=false;updateSpeakUI();
-      }
-    }
-
-    async function speakMystery(idx){
-      var text=getMysteryText(currentRosKey,idx);
-      var cacheKey='mystery-'+currentRosKey+'-'+idx;
-      await speakText(text,cacheKey);
-    }
-
-    async function toggleSpeak(){
+    async function toggleSpeak() {
       if(speaking){stopSpeak();return;}
-      if(inRosary){
-        await speakMystery(currentMystery);
-        return;
-      }
-      var text=getOpeningSpeakText();
-      await speakText(text,null);
+      var d=addDays(novenaStart,currentDay), fin=currentDay===8, dow=d.getDay();
+      var text = fin ? getConclusionText(userName) : getOpeningText(dow, userName);
+      var chunks = splitIntoChunks(text, 2500);
+      await speakChunks(chunks, null);
     }
 
     function togglePause(){
-      if(!audioElement)return;
-      if(paused){audioElement.play();paused=false;}
-      else{audioElement.pause();paused=true;}
+      if(!currentAudio) return;
+      if(paused){currentAudio.play();paused=false;}
+      else{currentAudio.pause();paused=true;}
       updateSpeakUI();
     }
 
     function stopSpeak(){
-      if(audioElement){audioElement.pause();audioElement.currentTime=0;}
-      speaking=false;paused=false;updateSpeakUI();
+      speaking=false; paused=false;
+      if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;currentAudio=null;}
+      updateSpeakUI();
     }
 
     function updateSpeakUI(){
@@ -243,11 +262,7 @@ export default function Home() {
       });
     }
 
-    function getPlainText(){
-      var c=document.getElementById('prayerBody').cloneNode(true);
-      return c.innerText||c.textContent||'';
-    }
-
+    function getPlainText(){var c=document.getElementById('prayerBody').cloneNode(true);return c.innerText||c.textContent||'';}
     function copyPrayer(){
       navigator.clipboard.writeText(getPlainText()).then(function(){
         ['Top','Bot'].forEach(function(s){document.getElementById('copy'+s).textContent='Copied!';});
@@ -335,3 +350,14 @@ export default function Home() {
     </div>
   );
 }
+```
+
+Press **Command + S**, then push:
+```
+git add .
+```
+```
+git commit -m "chunk playback final"
+```
+```
+git push origin main

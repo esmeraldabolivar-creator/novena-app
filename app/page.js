@@ -143,7 +143,7 @@ export default function Home() {
       var l=L(),m=l[rosKey];
       var title=m.list[idx][0],desc=m.list[idx][1];
       var ord=l.ordinals[idx],rosWord=lang==='en'?m.name.split(' ')[0]:m.name.split(' ')[1]||m.name.split(' ')[0];
-      return ord+' '+rosWord+': '+title+'. '+desc+' '+l.OFlbl+': '+l.OF+' '+l.HMlbl+' '+l.GBlbl+': '+l.GB+' '+l.FAlbl+': '+l.FA;
+      return ord+' '+rosWord+': '+title+'. '+desc+' '+l.OFlbl+': '+l.OF+' '+l.HMlbl+': '+Array(10).fill(l.HM).join(' ')+' '+l.GBlbl+': '+l.GB+' '+l.FAlbl+': '+l.FA;
     }
 
     function getConclusionText(n){

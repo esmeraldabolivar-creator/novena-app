@@ -271,10 +271,7 @@ export default function Home() {
 
 
     async function playFixed(fixedKey){
-      var res=await fetch("/api/speak",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fixedKey:fixedKey,language:lang,text:""})});
-      if(!res.ok)throw new Error("failed");
-      var blob=await res.blob();
-      var url=URL.createObjectURL(blob);
+      var url='https://novenaaudio.blob.core.windows.net/novena-audio/fixed-'+fixedKey+'-'+lang+'.mp3';
       return new Promise(function(resolve,reject){
         currentAudio=new Audio(url);
         currentAudio.onended=resolve;

@@ -48,7 +48,7 @@ export default function Home() {
       GB:'Glory be to the Father, and to the Son, and to the Holy Spirit, as it was in the beginning, is now, and ever shall be, world without end. Amen.',
       FA:'O my Jesus, forgive us our sins, save us from the fires of hell, lead all souls to heaven, especially those in most need of Thy mercy. Amen.',
       AC:'O my God, I am heartily sorry for having offended You, and I detest all my sins because of Your just punishments, but most of all because they offend You, my God, who are all-good and deserving of all my love. I firmly resolve, with the help of Your grace, to sin no more and to avoid the near occasions of sin. Amen.',
-      OFlbl:'Our Father',HMlbl:'Please pray the Hail Mary ten times.',GBlbl:'Glory Be',FAlbl:'Fatima Prayer',
+      OFlbl:'Our Father',HMlbl:'Hail Mary',HMnote:'🙏 Pray 10 times',GBlbl:'Glory Be',FAlbl:'Fatima Prayer',
       opening:'Opening Prayer',actTitle:'Act of Contrition',scripture:'Scripture Reading',meditation:'Meditation',
       intercessions:'Intercessions',lordHear:'Lord, in Your mercy, hear our prayer.',
       rosaryLbl:'The Rosary',nextMystery:'Next Mystery →',
@@ -92,7 +92,7 @@ export default function Home() {
       GB:'Gloria al Padre, y al Hijo, y al Espíritu Santo. Como era en el principio, ahora y siempre, por los siglos de los siglos. Amén.',
       FA:'Oh Jesús mío, perdona nuestros pecados, líbranos del fuego del infierno, lleva al cielo a todas las almas, especialmente a las más necesitadas de tu misericordia. Amén.',
       AC:'Dios mío, me arrepiento de todo corazón de todos mis pecados y los aborrezco, porque al pecar no sólo merezco las penas establecidas por Ti justamente, sino principalmente porque te ofendí a Ti, sumo Bien y digno de amor por encima de todas las cosas. Por eso propongo firmemente, con ayuda de tu gracia, no pecar más en adelante y huir de toda ocasión de pecado. Amén.',
-      OFlbl:'Padre Nuestro',HMlbl:'Por favor recen el Ave María diez veces.',GBlbl:'Gloria',FAlbl:'Oración de Fátima',
+      OFlbl:'Padre Nuestro',HMlbl:'Ave María',HMnote:'🙏 Rezar 10 veces',GBlbl:'Gloria',FAlbl:'Oración de Fátima',
       opening:'Oración Inicial',actTitle:'Acto de Contrición',scripture:'Lectura de la Escritura',meditation:'Meditación',
       intercessions:'Intercesiones',lordHear:'Señor, en Tu misericordia, escucha nuestra oración.',
       rosaryLbl:'El Rosario',nextMystery:'Siguiente Misterio →',
@@ -166,7 +166,7 @@ export default function Home() {
         +'<p style="font-size:.95rem;opacity:0.7;font-style:italic;margin-bottom:.75rem;line-height:1.7;">'+desc+'</p>'
         +'<p style="font-size:1rem;font-weight:500;margin-bottom:.4rem;">'+l.OFlbl+'</p>'
         +'<p style="margin-bottom:.6rem;line-height:1.8;">'+l.OF+'</p>'
-        +'<p style="font-size:.95rem;opacity:0.7;font-style:italic;margin:.4rem 0;padding:.5rem;border:1px dashed rgba(128,128,128,0.3);border-radius:6px;">🙏 '+l.HMlbl+'</p>'
+        +'<p style="font-size:1rem;font-weight:500;margin:.6rem 0 .4rem;">'+l.HMlbl+'</p>'+'<p style="margin-bottom:.4rem;line-height:1.8;">'+l.HM+'</p>'+'<p style="font-size:.9rem;opacity:0.6;font-style:italic;margin-bottom:.6rem;padding:.4rem .6rem;border:1px dashed rgba(128,128,128,0.3);border-radius:6px;">'+l.HMnote+'</p>'
         +'<p style="font-size:1rem;font-weight:500;margin:.6rem 0 .4rem;">'+l.GBlbl+'</p>'
         +'<p style="margin-bottom:.6rem;line-height:1.8;">'+l.GB+'</p>'
         +'<p style="font-size:1rem;font-weight:500;margin:.6rem 0 .4rem;">'+l.FAlbl+'</p>'

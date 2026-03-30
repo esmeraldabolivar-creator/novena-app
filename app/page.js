@@ -293,8 +293,7 @@ export default function Home() {
         var introText=await getMysteryIntroText(rosKey,idx);
         var cacheKey="mystery-intro-"+rosKey+"-"+idx;
         await speakOne(introText,cacheKey);
-        await playFixed("HM5");
-        await playFixed("HM5");
+        for(var hm=0;hm<10;hm++){await playFixed("HM");}
         await playFixed("GB");
         await playFixed("FA");
       }catch(e){console.error(e);}

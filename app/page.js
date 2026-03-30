@@ -293,13 +293,9 @@ export default function Home() {
         var introText=await getMysteryIntroText(rosKey,idx);
         var cacheKey="mystery-intro-"+rosKey+"-"+idx;
         await speakOne(introText,cacheKey);
-        if(!speaking)return;
         await playFixed("HM5");
-        if(!speaking)return;
         await playFixed("HM5");
-        if(!speaking)return;
         await playFixed("GB");
-        if(!speaking)return;
         await playFixed("FA");
       }catch(e){console.error(e);}
       speaking=false;paused=false;updateSpeakUI();
@@ -323,7 +319,9 @@ export default function Home() {
       var d=addDays(novenaStart,currentDay),fin=currentDay===8,dow=d.getDay();
       var text=fin?getConclusionText(userName):getOpeningText(dow,userName)+' '+getMysteryText(currentRosKey,0);
       var cacheKey=null;
+      speaking=true;paused=false;updateSpeakUI();
       await speakOne(text,cacheKey);
+      speaking=false;paused=false;updateSpeakUI();
     }
 
     function togglePause(){

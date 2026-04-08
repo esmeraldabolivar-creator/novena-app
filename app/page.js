@@ -389,7 +389,7 @@ export default function Home() {
       return new Promise(function(resolve,reject){
         currentAudio=new Audio(url);
         currentAudio.onended=resolve;
-        currentAudio.onerror=reject;
+        currentAudio.onerror=function(e){console.error("audio error:",e);resolve();};
         currentAudio.play();
       });
     }
@@ -415,7 +415,7 @@ export default function Home() {
         var ord=l.ordinals[idx];
         var introText=ord+' Misterio: '+title+'. '+med+' '+l.OFlbl+': '+l.OF;
         await speakOne(introText,'mystery-intro-'+rosKey+'-'+idx+'-'+lang);
-        for(var hm=0;hm<10;hm++){await playFixed('HM');}
+        for(var hm=0;hm<10;hm++){try{await playFixed('HM');}catch(e){console.error('HM '+hm+' failed:',e);}}
         await playFixed('GB');
         var jac=l.jacFunc(userName,gender);
         await speakOne(jac.join(' '),null);

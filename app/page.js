@@ -394,18 +394,19 @@ export default function Home() {
       });
     }
 
-    async function speakOne(text,cacheKey){
-      var res=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.slice(0,2000),language:lang,cacheKey:cacheKey})});
-      if(!res.ok)throw new Error('failed');
-      var blob=await res.blob();
-      var url=URL.createObjectURL(blob);
-      return new Promise(function(resolve,reject){
-        currentAudio=new Audio(url);
-        currentAudio.onended=resolve;
-        currentAudio.onerror=reject;
-        currentAudio.play();
-      });
-    }
+ async function speakOne(text,cacheKey){
+  var res=await fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.slice(0,2000),language:lang,cacheKey:cacheKey})});
+  if(!res.ok)throw new Error('failed');
+  var arrayBuffer=await res.arrayBuffer();
+  var blob=new Blob([arrayBuffer],{type:'audio/mpeg'}); // force correct MIME type — Safari needs this explicit
+  var url=URL.createObjectURL(blob);
+  return new Promise(function(resolve,reject){
+    currentAudio=new Audio(url);
+    currentAudio.onended=function(){URL.revokeObjectURL(url);resolve();};
+    currentAudio.onerror=function(e){URL.revokeObjectURL(url);reject(e);};
+    currentAudio.play().catch(reject);
+  });
+}
 
     async function speakMysteryInParts(rosKey,idx){
       speaking=true;paused=false;updateSpeakUI();
